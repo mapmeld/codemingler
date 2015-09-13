@@ -7,6 +7,8 @@ package user
 import (
 	"net/url"
 	"strings"
+	"math/rand"
+	"time"
 
 	"github.com/macaron-contrib/captcha"
 
@@ -17,6 +19,8 @@ import (
 	"github.com/gogits/gogs/modules/mailer"
 	"github.com/gogits/gogs/modules/middleware"
 	"github.com/gogits/gogs/modules/setting"
+
+	"github.com/zach-klippenstein/goregen"
 )
 
 const (
@@ -109,6 +113,7 @@ func SignInPost(ctx *middleware.Context, form auth.SignInForm) {
 
 	ctx.Session.Set("uid", u.Id)
 	ctx.Session.Set("uname", u.Name)
+	ctx.Session.Set("lookup", u.Lookup)
 	if redirectTo, _ := url.QueryUnescape(ctx.GetCookie("redirect_to")); len(redirectTo) > 0 {
 		ctx.SetCookie("redirect_to", "", -1, setting.AppSubUrl)
 		ctx.Redirect(redirectTo)
@@ -121,6 +126,7 @@ func SignInPost(ctx *middleware.Context, form auth.SignInForm) {
 func SignOut(ctx *middleware.Context) {
 	ctx.Session.Delete("uid")
 	ctx.Session.Delete("uname")
+	ctx.Session.Delete("lookup");
 	ctx.Session.Delete("socialId")
 	ctx.Session.Delete("socialName")
 	ctx.Session.Delete("socialEmail")
@@ -143,6 +149,7 @@ func oauthSignUp(ctx *middleware.Context, sid int64) {
 
 	ctx.Data["IsSocialLogin"] = true
 	ctx.Data["uname"] = strings.Replace(ctx.Session.Get("socialName").(string), " ", "", -1)
+	ctx.Data["lookup"] = ""
 	ctx.Data["email"] = ctx.Session.Get("socialEmail")
 	log.Trace("social ID: %v", ctx.Session.Get("socialId"))
 	ctx.HTML(200, SIGNUP)
@@ -150,6 +157,11 @@ func oauthSignUp(ctx *middleware.Context, sid int64) {
 
 func SignUp(ctx *middleware.Context) {
 	ctx.Data["Title"] = ctx.Tr("sign_up")
+
+  pattern := "[一-鿄]{2}"
+	rand.Seed(time.Now().UTC().UnixNano())
+	uname, _ := regen.Generate(pattern)
+	ctx.Data["uname"] = uname
 
 	if setting.Service.DisableRegistration {
 		ctx.Data["DisableRegistration"] = true
@@ -194,6 +206,7 @@ func SignUpPost(ctx *middleware.Context, cpt *captcha.Captcha, form auth.Registe
 		} else {
 			ctx.Data["uname"] = uname
 		}
+		ctx.Data["lookup"] = ctx.Query("lookup")
 		ctx.Data["password"] = ctx.Query("password")
 		ctx.HTML(200, SIGNUP)
 		return
@@ -216,6 +229,7 @@ func SignUpPost(ctx *middleware.Context, cpt *captcha.Captcha, form auth.Registe
 
 	u := &models.User{
 		Name:     form.UserName,
+		Lookup:		form.Lookup,
 		Email:    form.Email,
 		Passwd:   form.Password,
 		IsActive: !setting.Service.RegisterEmailConfirm || isOauth,
@@ -322,6 +336,7 @@ func Activate(ctx *middleware.Context) {
 
 		ctx.Session.Set("uid", user.Id)
 		ctx.Session.Set("uname", user.Name)
+		ctx.Session.Set("lookup", user.Lookup)
 		ctx.Redirect(setting.AppSubUrl + "/")
 		return
 	}

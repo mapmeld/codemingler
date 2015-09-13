@@ -54,6 +54,8 @@ type User struct {
 	LowerName string `xorm:"UNIQUE NOT NULL"`
 	Name      string `xorm:"UNIQUE NOT NULL"`
 	FullName  string
+	Lookup		string `xorm:"UNIQUE NOT NULL"`
+
 	// Email is the primary email address (to be used for communication).
 	Email       string `xorm:"NOT NULL"`
 	Passwd      string `xorm:"NOT NULL"`
@@ -173,18 +175,17 @@ func (u *User) RelAvatarLink() string {
 	}
 
 	switch {
-	case u.UseCustomAvatar:
-		if !com.IsExist(u.CustomAvatarPath()) {
-			return defaultImgUrl
-		}
-		return "/avatars/" + com.ToStr(u.Id)
-	case setting.DisableGravatar, setting.OfflineMode:
+	case true:
 		if !com.IsExist(u.CustomAvatarPath()) {
 			if err := u.GenerateRandomAvatar(); err != nil {
 				log.Error(3, "GenerateRandomAvatar: %v", err)
 			}
 		}
-
+		return "/avatars/" + com.ToStr(u.Id)
+	case u.UseCustomAvatar:
+		if !com.IsExist(u.CustomAvatarPath()) {
+			return defaultImgUrl
+		}
 		return "/avatars/" + com.ToStr(u.Id)
 	case setting.Service.EnableCacheAvatar:
 		return "/avatar/" + u.Avatar
@@ -334,9 +335,6 @@ func (u *User) GetOrganizations() error {
 // DisplayName returns full name if it's not empty,
 // returns username otherwise.
 func (u *User) DisplayName() string {
-	if len(u.FullName) > 0 {
-		return u.FullName
-	}
 	return u.Name
 }
 
