@@ -9,6 +9,7 @@ import (
 	"strings"
 	"math/rand"
 	"time"
+	"regexp"
 
 	"github.com/macaron-contrib/captcha"
 
@@ -199,6 +200,7 @@ func SignUpPost(ctx *middleware.Context, cpt *captcha.Captcha, form auth.Registe
 
 		// Make the best guess.
 		uname := ctx.Query("uname")
+
 		i := strings.Index(uname, "@")
 		if i > -1 {
 			ctx.Data["email"] = uname
@@ -225,6 +227,11 @@ func SignUpPost(ctx *middleware.Context, cpt *captcha.Captcha, form auth.Registe
 		ctx.Data["Err_Password"] = true
 		ctx.RenderWithErr(ctx.Tr("form.password_not_match"), SIGNUP, &form)
 		return
+	}
+
+	pattern := "[一-鿄]{2}"
+	if regexp.MustCompile(pattern).FindString(form.UserName) == "" {
+		form.UserName, _ = regen.Generate(pattern)
 	}
 
 	u := &models.User{

@@ -5,12 +5,18 @@
 package org
 
 import (
+	"math/rand"
+	"time"
+	"regexp"
+
 	"github.com/gogits/gogs/models"
 	"github.com/gogits/gogs/modules/auth"
 	"github.com/gogits/gogs/modules/base"
 	"github.com/gogits/gogs/modules/log"
 	"github.com/gogits/gogs/modules/middleware"
 	"github.com/gogits/gogs/modules/setting"
+
+	"github.com/zach-klippenstein/goregen"
 )
 
 const (
@@ -46,6 +52,12 @@ func Home(ctx *middleware.Context) {
 
 func Create(ctx *middleware.Context) {
 	ctx.Data["Title"] = ctx.Tr("new_org")
+
+	pattern := "[一-鿄]{2}"
+	rand.Seed(time.Now().UTC().UnixNano())
+	org_name, _ := regen.Generate(pattern)
+	ctx.Data["org_name"] = org_name
+
 	ctx.HTML(200, CREATE)
 }
 
@@ -55,6 +67,11 @@ func CreatePost(ctx *middleware.Context, form auth.CreateOrgForm) {
 	if ctx.HasError() {
 		ctx.HTML(200, CREATE)
 		return
+	}
+
+	pattern := "[一-鿄]{2}"
+	if regexp.MustCompile(pattern).FindString(form.OrgName) == "" {
+		form.OrgName, _ = regen.Generate(pattern)
 	}
 
 	org := &models.User{

@@ -14,22 +14,12 @@
                     <img class="profile-avatar" src="{{.Owner.AvatarLink}}?s=234" title="{{.Owner.Name}}"/>
                 </a>
                 <div class="text-center" id="profile-name">
-                    {{if .Owner.FullName}}<span id="profile-fullname" class="center-block">{{.Owner.FullName}}</span><br>{{end}}
                     <span class="center-block" id="profile-username">{{.Owner.Name}}</span>
                 </div>
             </div>
             <div class="profile-info">
                 <hr>
                 <ul class="list-no-style">
-                    {{if .Owner.Location}}
-                    <li class="list-group-item"><i class="octicon octicon-location"></i>&nbsp;&nbsp;{{.Owner.Location}}</li>
-                    {{end}}
-                    {{if and .Owner.Email .IsSigned}}
-                    <li class="list-group-item"><i class="octicon octicon-mail"></i>&nbsp;&nbsp;<a href="mailto:{{.Owner.Email}}" rel="nofollow">{{.Owner.Email}}</a></li>
-                    {{end}}
-                    {{if .Owner.Website}}
-                    <li class="list-group-item"><i class="octicon octicon-link"></i>&nbsp;&nbsp;<a target="_blank" href="{{.Owner.Website}}">{{.Owner.Website}}</a></li>
-                    {{end}}
                     <li class="list-group-item"><i class="octicon octicon-clock"></i>&nbsp;&nbsp;{{.i18n.Tr "user.join_on"}} {{DateFmtShort .Owner.Created}}</li>
                 </ul>
                 <hr>
