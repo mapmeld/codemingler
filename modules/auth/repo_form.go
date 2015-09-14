@@ -18,7 +18,7 @@ import (
 
 type CreateRepoForm struct {
 	Uid         int64  `binding:"Required"`
-	RepoName    string `binding:"Required;AlphaDashDot;MaxSize(100)"`
+	RepoName    string `binding:"Required;MaxSize(100)"`
 	Private     bool
 	Description string `binding:"MaxSize(255)"`
 	AutoInit    bool
@@ -36,7 +36,7 @@ type MigrateRepoForm struct {
 	AuthUsername string `json:"auth_username"`
 	AuthPassword string `json:"auth_password"`
 	Uid          int64  `json:"uid" binding:"Required"`
-	RepoName     string `json:"repo_name" binding:"Required;AlphaDashDot;MaxSize(100)"`
+	RepoName     string `json:"repo_name" binding:"Required;MaxSize(100)"`
 	Private      bool   `json:"mirror"`
 	Mirror       bool   `json:"private"`
 	Description  string `json:"description" binding:"MaxSize(255)"`
@@ -47,7 +47,7 @@ func (f *MigrateRepoForm) Validate(ctx *macaron.Context, errs binding.Errors) bi
 }
 
 type RepoSettingForm struct {
-	RepoName    string `binding:"Required;AlphaDashDot;MaxSize(100)"`
+	RepoName    string `binding:"Required;MaxSize(100)"`
 	Description string `binding:"MaxSize(255)"`
 	Website     string `binding:"Url;MaxSize(100)"`
 	Branch      string
