@@ -747,7 +747,13 @@ func GetUserByName(name string) (*User, error) {
 	if err != nil {
 		return nil, err
 	} else if !has {
-		return nil, ErrUserNotExist{0, name}
+		u = &User{Lookup: strings.ToLower(name)}
+		has, err = x.Get(u)
+		if err != nil {
+			return nil, err
+		} else if !has {
+			return nil, ErrUserNotExist{0, name}
+		}
 	}
 	return u, nil
 }
