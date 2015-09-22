@@ -18,8 +18,17 @@ $(document).ready(function() {
   });
 
   $('.btn.saveChanges').click(function () {
+    $('.code-edit .anchor').remove();
+
+    var adjustHTML = '';
+    $('.code-edit > div, .code-edit > p, .code-edit > pre').map(function (i, section) {
+      adjustHTML += '<br/>' + $(section).html();
+    });
+
     $.post('#save', {
-      content: $('.markdown').html()
+      content: toMarkdown(adjustHTML, {
+        gfm: true
+      })
     }, function (response) {
       // error if not repo owner / authorized
     });

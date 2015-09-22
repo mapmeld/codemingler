@@ -5,16 +5,21 @@
 package repo
 
 import (
-	"fmt"
-  "github.com/gogits/gogs/modules/base"
+	"io/ioutil"
+	"path/filepath"
+
 	"github.com/gogits/gogs/modules/middleware"
 )
 
-const (
-	SAVED base.TplName = "repo/view"
-)
-
 func SaveStuff(ctx *middleware.Context) {
-	fmt.Println(ctx.Query("content"))
-	ctx.HTML(200, SAVED)
+	content := ctx.Query("content")
+
+	err := ioutil.WriteFile(filepath.Join(ctx.Repo.GitRepo.Path + "/", "README.md"),
+		[]byte(content), 0644);
+
+  if err != nil {
+  	ctx.JSON(200, "OK")
+	} else {
+		ctx.JSON(200, "NOT OK")
+	}
 }
