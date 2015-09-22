@@ -11,6 +11,9 @@
             <i class="icon fa fa-file-text-o"></i>
             <strong class="file-name">{{.FileName}}</strong><span class="file-size">{{FileSize .FileSize}}</span>
 	    {{end}}
+      {{if eq .Owner.Name .SignedUser.Name}}
+        <button class="btn btn-blue saveChanges hide">Save</button>
+      {{end}}
         {{if not .ReadmeInList}}
             {{if not .IsCommit}}
                 <a class="right" href="{{.RepoLink}}/src/{{.CommitID}}/{{EscapePound .TreeName}}">
@@ -25,7 +28,7 @@
             </a>
         {{end}}
     </p>
-    <div class="{{if .ReadmeExist}}panel-content markdown{{end}} code-view" id="repo-code-view">
+    <div class="{{if .ReadmeExist}}panel-content markdown{{end}} code-view {{if eq .Owner.Name .SignedUser.Name}}code-edit{{end}}" id="repo-code-view">
     	{{if .ReadmeExist}}
     	{{if .FileContent}}{{.FileContent | Str2html}}{{end}}
         {{else if not .IsFileText}}

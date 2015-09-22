@@ -442,6 +442,7 @@ func runWeb(ctx *cli.Context) {
 	}, reqSignIn)
 
 	m.Group("/:username/:reponame", func() {
+		m.Post("", repo.SaveStuff)
 		m.Group("/settings", func() {
 			m.Combo("").Get(repo.Settings).
 				Post(bindIgnErr(auth.RepoSettingForm{}), repo.SettingsPost)
