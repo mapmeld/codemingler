@@ -22,7 +22,7 @@ $(document).ready(function() {
 
     var adjustHTML = '';
     $('.code-edit > div, .code-edit > p, .code-edit > pre').map(function (i, section) {
-      adjustHTML += '<br/>' + $(section).html();
+      adjustHTML += '<br/><br/>' + $(section).html();
     });
 
     $.post('#save', {

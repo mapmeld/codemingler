@@ -104,7 +104,7 @@ func NewRepoContext() {
 	}
 
 	// Git requires setting user.name and user.email in order to commit changes.
-	for configKey, defaultValue := range map[string]string{"user.name": "Gogs", "user.email": "gogs@fake.local"} {
+	for configKey, defaultValue := range map[string]string{"user.name": "Gogs", "user.email": "gogs@fake.local", "receive.denyCurrentBranch": "ignore"} {
 		if stdout, stderr, err := process.Exec("NewRepoContext(get setting)", "git", "config", "--get", configKey); err != nil || strings.TrimSpace(stdout) == "" {
 			// ExitError indicates this config is not set
 			if _, ok := err.(*exec.ExitError); ok || strings.TrimSpace(stdout) == "" {
@@ -463,9 +463,9 @@ func MigrateRepository(u *User, name, desc string, private, mirror bool, url str
 	// FIXME: this command could for both migrate and mirror
 	_, stderr, err := process.ExecTimeout(10*time.Minute,
 		fmt.Sprintf("MigrateRepository: %s", repoPath),
-		"git", "clone", "--mirror", "--bare", "--quiet", url, repoPath)
+		"git", "clone", "--mirror", "--quiet", url, repoPath)
 	if err != nil {
-		return repo, fmt.Errorf("git clone --mirror --bare --quiet: %v", stderr)
+		return repo, fmt.Errorf("git clone --mirror --quiet: %v", stderr)
 	} else if err = createUpdateHook(repoPath); err != nil {
 		return repo, fmt.Errorf("create update hook: %v", err)
 	}
@@ -620,9 +620,9 @@ func initRepository(e Engine, repoPath string, u *User, repo *Repository, opts C
 	// Init bare new repository.
 	os.MkdirAll(repoPath, os.ModePerm)
 	_, stderr, err := process.ExecDir(-1, repoPath,
-		fmt.Sprintf("initRepository(git init --bare): %s", repoPath), "git", "init", "--bare")
+		fmt.Sprintf("initRepository(git init): %s", repoPath), "git", "init")
 	if err != nil {
-		return fmt.Errorf("git init --bare: %v - %s", err, stderr)
+		return fmt.Errorf("git init: %v - %s", err, stderr)
 	}
 
 	if err := createUpdateHook(repoPath); err != nil {
@@ -1743,7 +1743,7 @@ func ForkRepository(u *User, oldRepo *Repository, name, desc string) (_ *Reposit
 	repoPath := RepoPath(u.Name, repo.Name)
 	_, stderr, err := process.ExecTimeout(10*time.Minute,
 		fmt.Sprintf("ForkRepository(git clone): %s/%s", u.Name, repo.Name),
-		"git", "clone", "--bare", oldRepoPath, repoPath)
+		"git", "clone", oldRepoPath, repoPath)
 	if err != nil {
 		return nil, fmt.Errorf("git clone: %v", stderr)
 	}

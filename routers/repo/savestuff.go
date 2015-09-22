@@ -5,10 +5,12 @@
 package repo
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
 	"github.com/gogits/gogs/modules/middleware"
+	"github.com/gogits/gogs/modules/process"
 )
 
 func SaveStuff(ctx *middleware.Context) {
@@ -17,9 +19,24 @@ func SaveStuff(ctx *middleware.Context) {
 	err := ioutil.WriteFile(filepath.Join(ctx.Repo.GitRepo.Path + "/", "README.md"),
 		[]byte(content), 0644);
 
-  if err != nil {
-  	ctx.JSON(200, "OK")
+	_, _, _ = process.ExecDir(-1,
+		filepath.Join(ctx.Repo.GitRepo.Path), fmt.Sprintf("git add: %s", filepath.Join(ctx.Repo.GitRepo.Path)),
+		"git", "add", ".")
+
+	sig := ctx.User.NewGitSig()
+
+	if _, stderr, err2 := process.ExecDir(-1,
+		filepath.Join(ctx.Repo.GitRepo.Path), fmt.Sprintf("git commit: %s", filepath.Join(ctx.Repo.GitRepo.Path)),
+		"git", "commit", fmt.Sprintf("--author='%s <%s>'", sig.Name, sig.Email),
+		"-m", "save"); err2 != nil {
+		ctx.JSON(200, "NOT COMMIT")
+		fmt.Println("git commit: %s", err2)
+		fmt.Println("git commit: %s", stderr)
 	} else {
-		ctx.JSON(200, "NOT OK")
+	  if err != nil {
+	  	ctx.JSON(200, "OK")
+		} else {
+			ctx.JSON(200, "NOT OK")
+		}
 	}
 }
