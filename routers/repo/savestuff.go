@@ -21,7 +21,7 @@ func SaveStuff(ctx *middleware.Context) {
 
 	_, _, _ = process.ExecDir(-1,
 		filepath.Join(ctx.Repo.GitRepo.Path), fmt.Sprintf("git add: %s", filepath.Join(ctx.Repo.GitRepo.Path)),
-		"git", "add", ".")
+		"git", "add", "*.md")
 
 	sig := ctx.User.NewGitSig()
 

@@ -536,6 +536,7 @@ func runWeb(ctx *cli.Context) {
 
 		m.Group("", func() {
 			m.Get("/src/*", repo.Home)
+			m.Post("/src/*", repo.SaveStuff)
 			m.Get("/raw/*", repo.SingleDownload)
 			m.Get("/commits/*", repo.RefCommits)
 			m.Get("/commit/*", repo.Diff)
