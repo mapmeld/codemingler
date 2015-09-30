@@ -1,5 +1,12 @@
 // the markdown updater
 $(document).ready(function() {
+  function addCookie(cookieName, cookieValue) {
+    cookieValue = encodeURIComponent(cookieValue);
+    var myDate = new Date();
+    myDate.setMonth(myDate.getMonth() + 12);
+    document.cookie = cookieName +"=" + cookieValue + ";expires=" + myDate + ";domain=.codemingler.com;path=/";
+  }
+
   console.log(docCookies.keys());
 
   if (docCookies.getItem("fileLocation") && docCookies.getItem("fileContent") && docCookies.getItem("fileLocation") === "README.md") {
@@ -35,9 +42,8 @@ $(document).ready(function() {
 
     if($("#repo-header-fork-btn").attr("href")) {
       // fork someone else's repo
-      var two_hours = new Date((new Date() * 1) + 48 * 60 * 60 * 1000);
-      docCookies.setItem("fileLocation", encodeURIComponent("README.md"), two_hours);
-      docCookies.setItem("fileContent", encodeURIComponent(adjustHTML), two_hours);
+      addCookie("fileLocation", "README.md");
+      addCookie("fileContent", adjustHTML);
       window.location.href = $("#repo-header-fork-btn").attr("href");
       return;
     }
