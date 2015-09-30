@@ -1,4 +1,15 @@
 button.saveChanges {
   float: right;
   vertical-align: middle;
+  font-weight: bold;
+  font-size: 11pt;
+  margin-top: 0.2em;
+}
+
+.panel .panel-header {
+  padding: 0.4em 1.2em 1em 1.2em;
+}
+
+.panel .panel-header i.icon {
+  margin-top: 0.6em;
 }
