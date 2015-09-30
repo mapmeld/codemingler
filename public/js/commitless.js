@@ -7,12 +7,11 @@ $(document).ready(function() {
     document.cookie = cookieName +"=" + cookieValue + ";expires=" + myDate + ";domain=.codemingler.com;path=/";
   }
 
-  console.log(docCookies.keys());
-
   if (docCookies.getItem("fileLocation") && docCookies.getItem("fileContent") && docCookies.getItem("fileLocation") === "README.md") {
     $('.code-edit').html(decodeURIComponent(docCookies.getItem("fileContent")));
-    docCookies.removeItem("fileLocation");
-    docCookies.removeItem("fileContent");
+    addCookie("fileLocation", "");
+    addCookie("fileContent", "");
+    $('.btn.saveChanges').removeClass('hide');
   }
 
   $('.code-edit').attr('contenteditable', true)
