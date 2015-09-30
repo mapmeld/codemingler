@@ -237,6 +237,7 @@ func runWeb(ctx *cli.Context) {
 				}, middleware.ApiReqToken())
 
 				m.Group("/:username/:reponame", func() {
+					m.Post("", repo.SaveStuff)
 					m.Combo("/hooks").Get(v1.ListRepoHooks).
 						Post(bind(api.CreateHookOption{}), v1.CreateRepoHook)
 					m.Patch("/hooks/:id:int", bind(api.EditHookOption{}), v1.EditRepoHook)
@@ -475,6 +476,7 @@ func runWeb(ctx *cli.Context) {
 	}, reqSignIn, middleware.RepoAssignment(true), reqRepoAdmin)
 
 	m.Group("/:username/:reponame", func() {
+		m.Post("", repo.SaveStuff)
 		m.Get("/action/:action", repo.Action)
 
 		m.Group("/issues", func() {
@@ -520,6 +522,8 @@ func runWeb(ctx *cli.Context) {
 	}, reqSignIn, middleware.RepoAssignment(true))
 
 	m.Group("/:username/:reponame", func() {
+		m.Post("", repo.SaveStuff)
+
 		m.Get("/releases", middleware.RepoRef(), repo.Releases)
 		m.Get("/:type(issues|pulls)", repo.RetrieveLabels, repo.Issues)
 		m.Get("/:type(issues|pulls)/:index", repo.ViewIssue)
@@ -535,6 +539,7 @@ func runWeb(ctx *cli.Context) {
 		})
 
 		m.Group("", func() {
+			m.Post("", repo.SaveStuff)
 			m.Get("/src/*", repo.Home)
 			m.Post("/src/*", repo.SaveStuff)
 			m.Get("/raw/*", repo.SingleDownload)
@@ -547,12 +552,13 @@ func runWeb(ctx *cli.Context) {
 
 	m.Group("/:username", func() {
 		m.Group("/:reponame", func() {
+			m.Post("*", repo.SaveStuff)
 			m.Get("", repo.Home)
 			m.Get("\\.git$", repo.Home)
 		}, ignSignIn, middleware.RepoAssignment(true, true), middleware.RepoRef())
 
 		m.Group("/:reponame", func() {
-			m.Any("/*", ignSignInAndCsrf, repo.Http)
+			m.Get("/*", ignSignInAndCsrf, repo.Http)
 			m.Head("/hooks/trigger", repo.TriggerHook)
 		})
 	})

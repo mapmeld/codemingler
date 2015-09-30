@@ -14,29 +14,36 @@ import (
 )
 
 func SaveStuff(ctx *middleware.Context) {
-	content := ctx.Query("content")
-
-	err := ioutil.WriteFile(filepath.Join(ctx.Repo.GitRepo.Path + "/", "README.md"),
-		[]byte(content), 0644);
-
-	_, _, _ = process.ExecDir(-1,
-		filepath.Join(ctx.Repo.GitRepo.Path), fmt.Sprintf("git add: %s", filepath.Join(ctx.Repo.GitRepo.Path)),
-		"git", "add", "*.md")
-
-	sig := ctx.User.NewGitSig()
-
-	if _, stderr, err2 := process.ExecDir(-1,
-		filepath.Join(ctx.Repo.GitRepo.Path), fmt.Sprintf("git commit: %s", filepath.Join(ctx.Repo.GitRepo.Path)),
-		"git", "commit", fmt.Sprintf("--author='%s <%s>'", sig.Name, sig.Email),
-		"-m", "save"); err2 != nil {
-		ctx.JSON(200, "NOT COMMIT")
-		fmt.Println("git commit: %s", err2)
-		fmt.Println("git commit: %s", stderr)
+	if ctx.Repo.Owner.Name != ctx.User.Name {
+		fmt.Println("not yo repo")
+		ctx.JSON(200, "NOT OK")
 	} else {
-	  if err != nil {
-	  	ctx.JSON(200, "OK")
+		fmt.Println("you got it")
+
+		content := ctx.Query("content")
+
+		err := ioutil.WriteFile(filepath.Join(ctx.Repo.GitRepo.Path + "/", "README.md"),
+			[]byte(content), 0644);
+
+		_, _, _ = process.ExecDir(-1,
+			filepath.Join(ctx.Repo.GitRepo.Path), fmt.Sprintf("git add: %s", filepath.Join(ctx.Repo.GitRepo.Path)),
+			"git", "add", "*.md")
+
+		sig := ctx.User.NewGitSig()
+
+		if _, stderr, err2 := process.ExecDir(-1,
+			filepath.Join(ctx.Repo.GitRepo.Path), fmt.Sprintf("git commit: %s", filepath.Join(ctx.Repo.GitRepo.Path)),
+			"git", "commit", fmt.Sprintf("--author='%s <%s>'", sig.Name, sig.Email),
+			"-m", "save"); err2 != nil {
+			ctx.JSON(200, "NOT COMMIT")
+			fmt.Println("git commit: %s", err2)
+			fmt.Println("git commit: %s", stderr)
 		} else {
-			ctx.JSON(200, "NOT OK")
+		  if err != nil {
+		  	ctx.JSON(200, "OK")
+			} else {
+				ctx.JSON(200, "NOT OK")
+			}
 		}
 	}
 }

@@ -1,5 +1,13 @@
 // the markdown updater
 $(document).ready(function() {
+  console.log(docCookies.keys());
+
+  if (docCookies.getItem("fileLocation") && docCookies.getItem("fileContent") && docCookies.getItem("fileLocation") === "README.md") {
+    $('.code-edit').html(decodeURIComponent(docCookies.getItem("fileContent")));
+    docCookies.removeItem("fileLocation");
+    docCookies.removeItem("fileContent");
+  }
+
   $('.code-edit').attr('contenteditable', true)
   .on('focus', function() {
       var $this = $(this);
@@ -25,12 +33,25 @@ $(document).ready(function() {
       adjustHTML += '<br/><br/>' + $(section).html();
     });
 
+    if($("#repo-header-fork-btn").attr("href")) {
+      // fork someone else's repo
+      var two_hours = new Date((new Date() * 1) + 48 * 60 * 60 * 1000);
+      docCookies.setItem("fileLocation", encodeURIComponent("README.md"), two_hours);
+      docCookies.setItem("fileContent", encodeURIComponent(adjustHTML), two_hours);
+      window.location.href = $("#repo-header-fork-btn").attr("href");
+      return;
+    }
+
+    // save to own repo
     $.post('#save', {
       content: toMarkdown(adjustHTML, {
         gfm: true
       })
     }, function (response) {
       // error if not repo owner / authorized
+      if (response === "OK") {
+        window.location.reload();
+      }
     });
   });
 });
