@@ -56,6 +56,9 @@ $(document).ready(function() {
     $('.code-edit > div, .code-edit > p, .code-edit > pre').map(function (i, section) {
       adjustHTML += '<br/><br/>' + $(section).html();
     });
+    if (!adjustHTML.length) {
+      adjustHTML = $('.code-edit').text();
+    }
 
     if($("#repo-header-fork-btn").attr("href")) {
       // fork someone else's repo
