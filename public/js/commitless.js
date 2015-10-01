@@ -14,6 +14,24 @@ $(document).ready(function() {
     $('.btn.saveChanges').removeClass('hide');
   }
 
+  var fileLocation = "";
+  var isReadme = false;
+  if ($(".bread a").length) {
+    // directory
+    fileLocation = $(".bread a").last().attr("href").split("/").slice(5) + "/";
+  } else if ($(".panel-header strong").text().toLowerCase() === "readme.md") {
+    // README inside a directory
+    isReadme = true;
+  }
+  if ($(".bread").not(".title").length) {
+    fileLocation += $(".bread").last().text();
+    if (isReadme) {
+      fileLocation += "/README.md";
+    }
+  } else {
+    fileLocation = "README.md";
+  }
+
   $('.code-edit').attr('contenteditable', true)
   .on('focus', function() {
       var $this = $(this);
@@ -41,17 +59,22 @@ $(document).ready(function() {
 
     if($("#repo-header-fork-btn").attr("href")) {
       // fork someone else's repo
-      addCookie("fileLocation", "README.md");
+      addCookie("fileLocation", fileLocation);
       addCookie("fileContent", adjustHTML);
       window.location.href = $("#repo-header-fork-btn").attr("href");
       return;
     }
 
+    var fileDir = fileLocation.substring(0, fileLocation.lastIndexOf("/") + 1);
+    var fileName = fileLocation.split("/")[fileLocation.split("/").length - 1];
+
     // save to own repo
     $.post('#save', {
       content: toMarkdown(adjustHTML, {
         gfm: true
-      })
+      }),
+      fileDir: fileDir,
+      fileName: fileName
     }, function (response) {
       // error if not repo owner / authorized
       if (response === "OK") {
